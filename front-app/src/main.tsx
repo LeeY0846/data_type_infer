@@ -2,15 +2,24 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './index.css'
-import Root, { loader as rootLoader } from './router/root';
+import Root from './router/root';
+import FilePage, { loader as fileListLoader } from './router/filePage';
+import { action as deleteFileAction } from './router/deleteFIle';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
-    loader: rootLoader,
     children: [
-
+      {
+        index: true,
+        loader: fileListLoader,
+        element: <FilePage />,
+      },
+      {
+        path: "/:fileID/delete",
+        action: deleteFileAction,
+      },
     ],
   }
 ]);

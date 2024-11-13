@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import DatasetApiView
+from .views import DatasetFileApiView
 
 urlpatterns = [
-    path("dataset", DatasetApiView.as_view()),
+    path("dataset", DatasetFileApiView.as_view()),
 ]

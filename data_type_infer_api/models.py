@@ -6,9 +6,8 @@ from django.db import models
 
 # Create your models here.
 class DataFile(models.Model):
-  filename = models.CharField(max_length=180)
-  file = models.FileField(upload_to="uploads/")
-  update_date = models.DateTimeField("date updated")
+  filename = models.CharField(max_length=180, name="filename")
+  file = models.FileField(upload_to="uploads/", name="file")
   
   def __str__(self):
     return self.filename

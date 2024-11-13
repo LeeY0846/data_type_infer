@@ -32,3 +32,51 @@ body {
   }
 }
 
+#root {
+  width: 100%;
+}
+
+.file-page-layout {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.file-upload-box {
+  width: 200px;
+  height: 60px;
+  background-color: #BBBBBB;
+  border-radius: 10px;
+}
+
+.file-list-layout {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  padding-inline: 5px;
+}
+
+.file-list-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.submit {
+  margin-top: 1rem;
+  background-color: #4f8c00;
+}
+
+.submit:hover {
+  border-color: #d6d8fa;
+}
