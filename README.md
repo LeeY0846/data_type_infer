@@ -4,6 +4,10 @@ To set up the back-end server, first, please make sure you have installed Django
 ```
 pip install django djangorestframework pandas numpy
 ```
+use below command to initialize sqlite database
+```
+python manage.py migrate
+```
 
 Clone the repository, enter the root of the project, use this command to run the backend server:
 ```
