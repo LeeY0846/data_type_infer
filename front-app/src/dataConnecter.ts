@@ -33,8 +33,9 @@ export async function uploadFile(file: File){
         body: formData,
       });
       
-      if (result.status === 200){
+      if (result.status === 201){
         console.log("Upload success");
+        return true;
       }
       else{
         console.error("Upload failed");
@@ -42,6 +43,9 @@ export async function uploadFile(file: File){
     }
     catch (error){
       console.error(error);
+    }
+    finally {
+      return false;
     }
   }
 }
@@ -54,4 +58,21 @@ export async function deleteFile(id: number){
     body: formData
   })
   return result.status === 200;
+}
+
+export async function getTable(id: number){
+  const url = urlPrefix(`data/dataset/${id}`);
+  try{
+    const response = await fetch(url);
+    if (response.status === 200){
+      console.log("Successfully get");
+      return await response.json();
+    }
+    else{
+      console.error("Getting data failed");
+    }
+  }
+  catch (error){
+    console.error(error);
+  }
 }

@@ -2,8 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, serializers
 from data_type_infer_api.models import DataFile, ColumnDataType
-from .models import DataFile
+from .models import DataFile, ColumnDataType
 from .forms import DataFileForm
+from .utils import get_inferred_types, get_chunked_typed_data
 import json
 
 # Create your views here.
@@ -18,9 +19,9 @@ class DatasetFileApiView(APIView):
   
   def post(self, request, *args, **kwargs):
     form = DataFileForm(request.POST, request.FILES)
-    if (form.is_valid):
+    if form.is_valid:
       form.save()
-      return Response(status=status.HTTP_200_OK)
+      return Response(status=status.HTTP_201_CREATED)
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
   
   def delete(self, request, *args, **kwargs):
@@ -33,3 +34,20 @@ class DatasetFileApiView(APIView):
     instance.delete()
     return Response({}, status=status.HTTP_200_OK)
   
+class DatasetApiView(APIView):
+  def get(self, request, file_id, *args, **kwargs):
+    instance = DataFile.objects.get(pk=file_id)
+    if not instance:
+      return Response({}, status=status.HTTP_400_BAD_REQUEST)
+    
+    columnTypes = ColumnDataType.objects.filter(file_id=file_id)
+    types = {}
+    if len(columnTypes) == 0:
+      types = get_inferred_types(instance.file.path)
+      for col in types:
+        ColumnDataType.objects.create(column_name=col, column_type=types[col], file=instance)
+    else:
+      for type in columnTypes:
+        types[type.column_name] = type.column_type
+    data = get_chunked_typed_data(instance.file.path, 0, types)
+    return Response({"types": json.dumps(types), "data": data["data"], "ended": data["ended"]}, status=status.HTTP_200_OK)

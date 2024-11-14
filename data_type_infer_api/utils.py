@@ -8,6 +8,8 @@ COMPLEX = "complex"
 CATEGORY = "category"
 OBJECT = "object"
 
+CHUNK_SIZE = 200
+
 
 def is_np_complex(s):
     try:
@@ -42,11 +44,11 @@ def infer_types(df, check_rows = 200, type_percent_threshold = 0.5, max_category
     for col in dc.columns:
         number_converted = pd.to_numeric(dc[col], errors='coerce')
         number_count = rows - number_converted.isna().sum()
-        if (number_count > rows * type_percent_threshold):
+        if number_count > rows * type_percent_threshold:
             types_dict[col] = NUMBER
             continue
         
-        if (pd.api.types.is_bool_dtype(dc[col])):
+        if pd.api.types.is_bool_dtype(dc[col]):
             types_dict[col] = BOOL
             continue
         
@@ -58,7 +60,7 @@ def infer_types(df, check_rows = 200, type_percent_threshold = 0.5, max_category
             pass
         
         complex_count = is_complex(dc[col]).sum()
-        if (complex_count > rows * type_percent_threshold):
+        if complex_count > rows * type_percent_threshold:
             types_dict[col] = COMPLEX
             continue
         
@@ -70,21 +72,49 @@ def infer_types(df, check_rows = 200, type_percent_threshold = 0.5, max_category
         types_dict[col] = OBJECT
     return types_dict
 
+
 def convert_data_with_types(df, type_dict):
     for col in type_dict:
         type = type_dict[col]
-        if (type == NUMBER):
+        if type == NUMBER:
             df[col] = pd.to_numeric(df[col], errors="coerce")
-        elif (type == BOOL):
+        elif type == BOOL:
             df[col] = convert_bool_vec(df[col])
-        elif (type == DATE):
+        elif type == DATE:
             df[col] = pd.to_datetime(df[col])
-        elif (type == COMPLEX):
+        elif type == COMPLEX:
             df[col] = convert_complex_vec(df[col])
-        elif (type == CATEGORY):
+        elif type == CATEGORY:
             df[col] = pd.Categorical(df[col])
-        elif (type == OBJECT):
+        elif type == OBJECT:
             pass
         else:
             raise TypeError("Invalid type: " + str(type))
     return df
+  
+def get_inferred_types(filepath):
+  if filepath.endswith(".csv"):
+    df = pd.read_csv(filepath, chunksize=CHUNK_SIZE)
+    for chunk in df:
+      types = infer_types(chunk)
+      break
+    return types
+  elif filepath.endswith(".xlsx"):
+    pass
+  else:
+    raise TypeError("Invalid file type " + filepath)
+  
+def get_chunked_data(filepath, start):
+  if filepath.endswith(".csv"):
+    df = pd.read_csv(filepath, skiprows=start, chunksize=CHUNK_SIZE)
+    for chunk in df:
+      return { "data": chunk, "ended": chunk.shape[0] < CHUNK_SIZE }
+  elif filepath.endswith(".xlsx"):
+    pass
+  else:
+    raise TypeError("Invalid file type " + filepath)
+  
+def get_chunked_typed_data(filepath, start, types):
+  data = get_chunked_data(filepath, start)
+  data['data'] = convert_data_with_types(data['data'], types).to_json()
+  return data

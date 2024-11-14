@@ -8,6 +8,7 @@ export async function loader(){
   if (files){
     return files.map((f)=>({name: f.filename, id: f.pk}));
   }
+  return null;
 }
 
 type FileMetaData = {
@@ -21,7 +22,7 @@ export default function FilePage(){
     <div className="file-page-layout">
       <FileUploader></FileUploader>
       <div className="file-list-layout">
-        {files.map((f)=>(
+        {files && files.map((f)=>(
           <FileListItem key={f.id} fileName={f.name} fileID={f.id}></FileListItem>
         ))}
       </div>
@@ -72,7 +73,7 @@ function FileUploader(){
 function FileListItem({ fileName, fileID }: { fileName: string, fileID: number }){
   return (
     <div className="file-list-item">
-      <NavLink to={`/${fileName}`}>{fileName}</NavLink>
+      <NavLink to={`/table/${fileID}`}>{fileName}</NavLink>
       <Form method="post" action={`${fileID}/delete`} onSubmit={(event)=>{
         if (!confirm("Please confirm you want to remove this file")){
           event.preventDefault();
