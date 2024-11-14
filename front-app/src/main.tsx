@@ -7,6 +7,7 @@ import FilePage, { loader as fileListLoader } from './router/filePage';
 import { action as deleteFileAction } from './router/deleteFIle';
 import TablePage, { loader as tableLoader } from './router/table';
 
+
 const router = createBrowserRouter([
   {
     path: "/",

@@ -94,27 +94,24 @@ def convert_data_with_types(df, type_dict):
   
 def get_inferred_types(filepath):
   if filepath.endswith(".csv"):
-    df = pd.read_csv(filepath, chunksize=CHUNK_SIZE)
-    for chunk in df:
-      types = infer_types(chunk)
-      break
+    df = pd.read_csv(filepath, nrows=CHUNK_SIZE)
+    types = infer_types(df)
     return types
   elif filepath.endswith(".xlsx"):
     pass
   else:
     raise TypeError("Invalid file type " + filepath)
   
-def get_chunked_data(filepath, start):
+def get_chunked_data(filepath, start, columns):
   if filepath.endswith(".csv"):
-    df = pd.read_csv(filepath, skiprows=start, chunksize=CHUNK_SIZE)
-    for chunk in df:
-      return { "data": chunk, "ended": chunk.shape[0] < CHUNK_SIZE }
+    df = pd.read_csv(filepath, skiprows=start + 1, nrows=CHUNK_SIZE, names=columns, index_col=False)
+    return { "data": df, "ended": df.shape[0] < CHUNK_SIZE }
   elif filepath.endswith(".xlsx"):
     pass
   else:
     raise TypeError("Invalid file type " + filepath)
   
 def get_chunked_typed_data(filepath, start, types):
-  data = get_chunked_data(filepath, start)
-  data['data'] = convert_data_with_types(data['data'], types).to_json()
+  data = get_chunked_data(filepath, start, [col for col in types])
+  data['data'] = convert_data_with_types(data['data'], types).to_json(orient="index")
   return data

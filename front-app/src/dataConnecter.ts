@@ -60,8 +60,8 @@ export async function deleteFile(id: number){
   return result.status === 200;
 }
 
-export async function getTable(id: number){
-  const url = urlPrefix(`data/dataset/${id}`);
+export async function getTable(id: number, chunk_id: number){
+  const url = urlPrefix(`data/dataset/${id}/${chunk_id}`);
   try{
     const response = await fetch(url);
     if (response.status === 200){

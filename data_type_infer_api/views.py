@@ -4,7 +4,7 @@ from rest_framework import status, serializers
 from data_type_infer_api.models import DataFile, ColumnDataType
 from .models import DataFile, ColumnDataType
 from .forms import DataFileForm
-from .utils import get_inferred_types, get_chunked_typed_data
+from .utils import get_inferred_types, get_chunked_typed_data, CHUNK_SIZE
 import json
 
 # Create your views here.
@@ -35,7 +35,7 @@ class DatasetFileApiView(APIView):
     return Response({}, status=status.HTTP_200_OK)
   
 class DatasetApiView(APIView):
-  def get(self, request, file_id, *args, **kwargs):
+  def get(self, request, file_id, chunk_id, *args, **kwargs):
     instance = DataFile.objects.get(pk=file_id)
     if not instance:
       return Response({}, status=status.HTTP_400_BAD_REQUEST)
@@ -49,5 +49,5 @@ class DatasetApiView(APIView):
     else:
       for type in columnTypes:
         types[type.column_name] = type.column_type
-    data = get_chunked_typed_data(instance.file.path, 0, types)
-    return Response({"types": json.dumps(types), "data": data["data"], "ended": data["ended"]}, status=status.HTTP_200_OK)
+    data = get_chunked_typed_data(instance.file.path, CHUNK_SIZE * chunk_id, types)
+    return Response({"name":instance.filename, "types": json.dumps(types), "data": data["data"], "ended": data["ended"], "chunk": chunk_id}, status=status.HTTP_200_OK)
