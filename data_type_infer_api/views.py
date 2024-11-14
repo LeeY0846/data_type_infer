@@ -24,8 +24,6 @@ class DatasetFileApiView(APIView):
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
   
   def delete(self, request, *args, **kwargs):
-    print(request.POST)
-    print(request.POST.get("id"))
     fileID = request.POST.get("id")
     # print(json.load(request.body).id)
     instance = DataFile.objects.get(pk=fileID)

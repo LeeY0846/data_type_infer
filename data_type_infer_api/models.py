@@ -13,7 +13,7 @@ class DataFile(models.Model):
     return self.filename
   
 class ColumnDataType(models.Model):
-  column_id = models.IntegerField()
+  column_name = models.CharField(max_length=100)
   column_type = models.CharField(max_length=40)
   file = models.ForeignKey(DataFile, on_delete=models.CASCADE)
   
